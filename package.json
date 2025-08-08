@@ -1,0 +1,16 @@
+{
+    "scripts": {
+        "prepare": "husky install"
+    },
+    "devDependencies": {
+        "husky": "^9.1.7",
+        "lint-staged": "^16.1.4",
+        "prettier": "^3.6.2"
+    },
+    "lint-staged": {
+        "*.{js,ts,tsx}": [
+            "npm --prefix frontend run format",
+            "npm --prefix frontend run lint"
+        ]
+    }
+}
