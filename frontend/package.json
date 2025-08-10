@@ -10,7 +10,8 @@
     "format": "prettier --write src/**/*.{ts,tsx}"
   },
   "dependencies": {
-    "@mui/material": "^7.3.1",
+    "@ant-design/icons": "^6.0.0",
+    "antd": "^5.26.7",
     "effector": "^23.4.2",
     "effector-react": "^23.3.0",
     "react": "^19.1.0",
