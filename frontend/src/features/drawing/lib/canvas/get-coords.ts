@@ -1,20 +1,26 @@
-import type { MouseEvent } from 'react';
-
 type GetCoordsProps = {
-	e: MouseEvent<HTMLCanvasElement>;
+	e: MouseEvent | TouchEvent;
 	canvas: HTMLCanvasElement;
 };
 
 export const getCoords = ({ e, canvas }: GetCoordsProps) => {
-	if (!canvas) return;
-
 	const rect = canvas.getBoundingClientRect();
-
 	const scaleX = canvas.width / rect.width;
 	const scaleY = canvas.height / rect.height;
 
-	const x = (e.clientX - rect.left) * scaleX;
-	const y = (e.clientY - rect.top) * scaleY;
+	let clientX: number;
+	let clientY: number;
 
-	return { x, y };
+	if (e instanceof TouchEvent) {
+		clientX = e.touches[0].clientX;
+		clientY = e.touches[0].clientY;
+	} else {
+		clientX = e.clientX;
+		clientY = e.clientY;
+	}
+
+	return {
+		x: (clientX - rect.left) * scaleX,
+		y: (clientY - rect.top) * scaleY
+	};
 };
