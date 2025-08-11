@@ -1,11 +1,6 @@
-import { CssBaseline } from '@mui/material';
-
+import 'antd/dist/reset.css';
 import { Routing } from './routes';
 
-const App = () => (
-	<>
-		<CssBaseline />
-		<Routing />
-	</>
-);
+const App = () => <Routing />;
+
 export default App;
