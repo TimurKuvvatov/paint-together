@@ -1,91 +1,81 @@
-import { useEffect, useRef, type MouseEvent } from 'react';
+import { useEffect, useRef } from 'react';
 
-import { Box } from '@mui/material';
-import { useUnit } from 'effector-react';
+import { Layout } from 'antd';
 
-import { drawEnd } from '@/features/drawing/lib/canvas/draw-end';
-import { drawMove } from '@/features/drawing/lib/canvas/draw-move';
-import { drawStart } from '@/features/drawing/lib/canvas/draw-start';
-import { getCoords } from '@/features/drawing/lib/canvas/get-coords';
-import { initCanvas } from '@/features/drawing/lib/canvas/init-canvas';
-import { $color, $isDrawing, $size, $tool } from '@/features/drawing/model';
+import { initCanvas } from '../lib/canvas/init-canvas';
+import { setupCanvasListenersFx } from '../model/effects';
 
 export const Canvas = () => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
-	const containerRef = useRef<HTMLDivElement | null>(null);
-
-	const [isDrawing, color, size, tool] = useUnit([
-		$isDrawing,
-		$color,
-		$size,
-		$tool
-	]);
-
-	const handleMouseDown = (e: MouseEvent<HTMLCanvasElement>) => {
-		const canvas = canvasRef.current;
-		if (!canvas) return;
-
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return;
-
-		const coords = getCoords({ e, canvas });
-		if (!coords) return;
-		const { x, y } = coords;
-
-		drawStart({ color, size, tool, x, y, ctx });
-	};
-
-	const handleMouseMove = (e: MouseEvent<HTMLCanvasElement>) => {
-		if (!isDrawing) return;
-		const canvas = canvasRef.current;
-		if (!canvas) return;
-
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return;
-
-		const coords = getCoords({ e, canvas });
-		if (!coords) return;
-		const { x, y } = coords;
-
-		drawMove({ ctx, x, y });
-	};
-
-	const handleMouseUp = () => {
-		const canvas = canvasRef.current;
-		if (!canvas) return;
-
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return;
-
-		drawEnd(ctx);
-	};
+	const innerContainerRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
-		if (canvasRef.current && containerRef.current) {
+		if (!canvasRef.current) return;
+
+		const abortController = new AbortController();
+		const { signal } = abortController;
+
+		setupCanvasListenersFx({ canvas: canvasRef.current, signal });
+
+		return () => {
+			abortController.abort();
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!canvasRef.current || !innerContainerRef.current) return;
+
+		const resizeCanvas = () => {
 			initCanvas({
-				canvas: canvasRef.current,
-				container: containerRef.current
+				canvas: canvasRef.current!,
+				container: innerContainerRef.current!
 			});
-		}
+		};
+
+		resizeCanvas();
+
+		const resizeObserver = new ResizeObserver(() => {
+			resizeCanvas();
+		});
+
+		resizeObserver.observe(innerContainerRef.current);
+
+		return () => {
+			resizeObserver.disconnect();
+		};
 	}, []);
 
 	return (
-		<Box
-			ref={containerRef}
-			sx={{
-				width: '90%',
-				offset: '3/4',
-				border: '1px solid #000',
-				display: 'flex',
-				justifyContent: 'center'
+		<Layout.Content
+			style={{
+				position: 'relative',
+				flex: '1',
+				maxWidth: '100%',
+				maxHeight: '100%'
 			}}>
-			<canvas
-				style={{ width: '100%', height: '100%' }}
-				onMouseDown={handleMouseDown}
-				onMouseMove={handleMouseMove}
-				onMouseUp={handleMouseUp}
-				ref={canvasRef}
-			/>
-		</Box>
+			<div
+				ref={innerContainerRef}
+				style={{
+					position: 'relative',
+					maxHeight: '100%',
+					maxWidth: '100%',
+					aspectRatio: '16 / 9'
+				}}>
+				<canvas
+					ref={canvasRef}
+					style={{
+						border: '1px solid #000',
+						backgroundColor: '#fff',
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%'
+					}}
+					width={1600}
+					height={900}
+				/>
+			</div>
+		</Layout.Content>
 	);
 };
