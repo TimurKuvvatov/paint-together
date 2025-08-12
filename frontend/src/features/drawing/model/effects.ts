@@ -1,62 +1,45 @@
 import { createEffect } from 'effector';
 
-import { drawEnd } from '../lib/canvas/draw-end';
-import { drawMove } from '../lib/canvas/draw-move';
-import { drawStart } from '../lib/canvas/draw-start';
-import { getCoords } from '../lib/canvas/get-coords';
-
 import { stopDrawing } from './event';
-import { $color, $isDrawing, $size, $tool } from './store';
+import { mouseDown, mouseLeave, mouseMove, mouseUp } from './listeners';
+import { unsubRedo, unsubUndo } from './undo-redo';
 
 export const setupCanvasListenersFx = createEffect<
 	{ canvas: HTMLCanvasElement; signal: AbortSignal },
 	void
 >(({ canvas, signal }) => {
-	const ctx = canvas.getContext('2d');
-	if (!ctx) return;
+	const disposeUndo = unsubUndo(canvas);
+	const disposeRedo = unsubRedo(canvas);
 
 	const onMouseDown = (e: MouseEvent | TouchEvent) => {
-		if (!(e.target instanceof HTMLCanvasElement)) return;
-
-		const coords = getCoords({ e, canvas });
-		if (!coords) return;
-		const { x, y } = coords;
-
-		drawStart({
-			color: $color.getState(),
-			size: $size.getState(),
-			tool: $tool.getState(),
-			x,
-			y,
-			ctx
-		});
+		mouseDown(e, canvas);
 	};
 
 	const onMouseMove = (e: MouseEvent | TouchEvent) => {
-		if (!(e.target instanceof HTMLCanvasElement) || !$isDrawing.getState())
-			return;
-
-		const coords = getCoords({ e, canvas });
-		if (!coords) return;
-
-		const { x, y } = coords;
-
-		drawMove({ ctx, x, y });
+		mouseMove(e, canvas);
 	};
 
 	const onMouseUp = () => {
-		drawEnd(ctx);
+		mouseUp(canvas);
 	};
 
+	const onMouseLeave = () => {
+		mouseLeave();
+	};
+
+	canvas.addEventListener('mouseleave', onMouseLeave, { signal });
 	canvas.addEventListener('mousedown', onMouseDown, { signal });
 	canvas.addEventListener('mousemove', onMouseMove, { signal });
 	window.addEventListener('mouseup', onMouseUp, { signal });
 
+	canvas.addEventListener('touchcancel', onMouseLeave, { signal });
 	canvas.addEventListener('touchstart', onMouseDown, { signal });
 	canvas.addEventListener('touchmove', onMouseMove, { signal });
 	window.addEventListener('touchend', onMouseUp, { signal });
 
 	signal.addEventListener('abort', () => {
 		stopDrawing();
+		if (typeof disposeUndo === 'function') disposeUndo();
+		if (typeof disposeRedo === 'function') disposeRedo();
 	});
 });

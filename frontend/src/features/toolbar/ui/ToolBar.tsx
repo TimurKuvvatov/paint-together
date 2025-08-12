@@ -13,8 +13,11 @@ import {
 	$tool,
 	changeColor,
 	changeSize,
-	changeTool
+	changeTool,
+	redo,
+	undo
 } from '@/features/drawing/model';
+import { $redoStack, $undoStack } from '@/features/drawing/model/store';
 
 import { COLORS } from '../constants/colors';
 
@@ -23,9 +26,15 @@ const { Text } = Typography;
 export const ToolBar = () => {
 	const [color, size, tool] = useUnit([$color, $size, $tool]);
 
-	const onChangeTool = useUnit(changeTool);
-	const onChangeColor = useUnit(changeColor);
-	const onChangeSize = useUnit(changeSize);
+	const [onChangeTool, onChangeColor, onChangeSize] = useUnit([
+		changeTool,
+		changeColor,
+		changeSize
+	]);
+
+	const [onUndo, onRedo] = useUnit([undo, redo]);
+
+	const [undoStack, redoStack] = useUnit([$undoStack, $redoStack]);
 
 	return (
 		<Flex
@@ -65,13 +74,17 @@ export const ToolBar = () => {
 				<Col xs={12}>
 					<Button
 						block
+						disabled={undoStack.length === 0}
 						icon={<LeftCircleTwoTone />}
+						onClick={() => onUndo()}
 					/>
 				</Col>
 				<Col xs={12}>
 					<Button
 						block
+						disabled={redoStack.length === 0}
 						icon={<RightCircleTwoTone />}
+						onClick={() => onRedo()}
 					/>
 				</Col>
 			</Row>
