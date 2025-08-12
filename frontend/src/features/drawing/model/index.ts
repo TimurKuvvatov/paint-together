@@ -4,5 +4,9 @@ export {
 	stopDrawing,
 	changeTool,
 	changeColor,
-	changeSize
+	changeSize,
+	pushToUndo,
+	undo,
+	redo
 } from './event';
+export { pushCurrentStateToUndo, unsubUndo, unsubRedo } from './undo-redo';
