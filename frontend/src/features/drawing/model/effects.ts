@@ -1,5 +1,8 @@
 import { createEffect } from 'effector';
 
+import { setCurrentImage } from '@/features/room/model/events';
+import { $room } from '@/features/room/model/store';
+
 import { stopDrawing } from './event';
 import { mouseDown, mouseLeave, mouseMove, mouseUp } from './listeners';
 import { unsubRedo, unsubUndo } from './undo-redo';
@@ -21,6 +24,16 @@ export const setupCanvasListenersFx = createEffect<
 
 	const onMouseUp = () => {
 		mouseUp(canvas);
+		try {
+			const dataUrl = canvas.toDataURL();
+			const roomId = $room.getState().id;
+			if (!roomId) return;
+
+			setCurrentImage({ roomId, dataUrl });
+			console.log('data', dataUrl);
+		} catch (error) {
+			console.error('Failed to update currentImage:', error);
+		}
 	};
 
 	const onMouseLeave = () => {
