@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
 
 import { Layout } from 'antd';
+import { useUnit } from 'effector-react';
+
+import { $room } from '@/features/room/model/store';
 
 import { initCanvas } from '../lib/canvas/init-canvas';
 import { setupCanvasListenersFx } from '../model/effects';
@@ -8,6 +11,26 @@ import { setupCanvasListenersFx } from '../model/effects';
 export const Canvas = () => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const innerContainerRef = useRef<HTMLDivElement | null>(null);
+
+	const room = useUnit($room);
+	const currentImage = room.currentImage;
+
+	useEffect(() => {
+		if (currentImage && canvasRef.current) {
+			const ctx = canvasRef.current.getContext('2d');
+			const img = new Image();
+			img.src = currentImage;
+			img.onload = () => {
+				ctx?.clearRect(
+					0,
+					0,
+					canvasRef.current!.width,
+					canvasRef.current!.height
+				);
+				ctx?.drawImage(img, 0, 0);
+			};
+		}
+	}, [currentImage]);
 
 	useEffect(() => {
 		if (!canvasRef.current) return;
