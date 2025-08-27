@@ -1,3 +1,6 @@
+import { setCurrentImage } from '@/features/room/model/events';
+import { $room } from '@/features/room/model/store';
+
 import { drawEnd } from '../lib/canvas/draw-end';
 import { drawMove } from '../lib/canvas/draw-move';
 import { drawStart } from '../lib/canvas/draw-start';
@@ -48,6 +51,16 @@ export const mouseMove = (
 	const { x, y } = coords;
 
 	drawMove({ ctx, x, y });
+	try {
+		const dataUrl = canvas.toDataURL();
+		const roomId = $room.getState().id;
+		if (!roomId) return;
+
+		setCurrentImage({ roomId, dataUrl });
+		console.log('data', dataUrl);
+	} catch (error) {
+		console.error('Failed to update currentImage:', error);
+	}
 };
 
 export const mouseLeave = () => {
