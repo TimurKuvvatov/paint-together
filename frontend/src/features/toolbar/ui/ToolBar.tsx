@@ -18,6 +18,8 @@ import {
 	undo
 } from '@/features/drawing/model';
 import { $redoStack, $undoStack } from '@/features/drawing/model/store';
+import { $room } from '@/features/room/model/store';
+import UserList from '@/features/room/ui/UserList';
 
 import { COLORS } from '../constants/colors';
 
@@ -25,7 +27,7 @@ const { Text } = Typography;
 
 export const ToolBar = () => {
 	const [color, size, tool] = useUnit([$color, $size, $tool]);
-
+	const { users } = useUnit($room);
 	const [onChangeTool, onChangeColor, onChangeSize] = useUnit([
 		changeTool,
 		changeColor,
@@ -135,6 +137,7 @@ export const ToolBar = () => {
 					}}
 				/>
 			</Space>
+			<UserList users={users} />
 		</Flex>
 	);
 };
