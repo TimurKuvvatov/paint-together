@@ -24,7 +24,9 @@ export const PaintPage = () => (
 				padding: '10px',
 				width: '100%',
 				borderRadius: '10px',
-				gap: '20px'
+				gap: '20px',
+				minHeight: 'auto',
+				flex: '0'
 			}}>
 			<UserList />
 			<Canvas />
