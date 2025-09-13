@@ -87,7 +87,7 @@ export const Canvas = () => {
 				<canvas
 					ref={canvasRef}
 					style={{
-						border: '1px solid #000',
+						borderRadius: '10px',
 						backgroundColor: '#fff',
 						position: 'absolute',
 						top: 0,
