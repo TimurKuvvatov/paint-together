@@ -1,6 +1,7 @@
 import { Layout } from 'antd';
 
 import { Canvas } from '@/features/drawing';
+import UserList from '@/features/room/ui/UserList';
 import { ToolBar } from '@/features/toolbar/ui/ToolBar';
 
 export const PaintPage = () => (
@@ -8,9 +9,10 @@ export const PaintPage = () => (
 		style={{
 			height: '100vh',
 			width: '100vw',
-			backgroundColor: '#8c00ffff',
+			backgroundColor: '#ffffffff',
 			display: 'flex',
 			justifyContent: 'center',
+			padding: '10px 100px',
 			alignItems: 'center'
 		}}>
 		<Layout
@@ -18,12 +20,15 @@ export const PaintPage = () => (
 				display: 'flex',
 				flexDirection: 'row',
 				justifyContent: 'space-between',
-				background: 'none',
+				background: '#e6e6e6ff',
+				padding: '10px',
 				width: '100%',
-				padding: '10px 100px'
+				borderRadius: '10px',
+				gap: '20px'
 			}}>
-			<ToolBar />
+			<UserList />
 			<Canvas />
+			<ToolBar />
 		</Layout>
 	</Layout>
 );
